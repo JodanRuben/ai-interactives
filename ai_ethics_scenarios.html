@@ -448,6 +448,9 @@
                 document.getElementById(`scenario${next}`).classList.remove('hidden');
                 currentScenario = next;
                 document.getElementById('scenario-counter').textContent = `Scenario ${next} of ${totalScenarios}`;
+                
+                // Scroll to top for mobile users
+                window.scrollTo(0, 0);
             }
         }
         
