@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Key Course Concepts</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f3e8ff 0%, #e0e7ff 100%);
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        .container {
+            max-width: 1024px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #6b21a8;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #9333ea;
+            font-size: 1rem;
+        }
+
+        .progress-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            font-size: 0.875rem;
+            color: #9333ea;
+        }
+
+        .controls {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 24px;
+        }
+
+        .btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        .btn-purple {
+            background: #a855f7;
+            color: white;
+        }
+
+        .btn-purple:hover {
+            background: #9333ea;
+        }
+
+        .btn-purple-light {
+            background: #e879f9;
+            color: white;
+        }
+
+        .btn-purple-light:hover {
+            background: #a855f7;
+        }
+
+        .card-container {
+            margin-bottom: 24px;
+        }
+
+        .flashcard {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            min-height: 384px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid #e5b4f3;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .flashcard:hover {
+            border-color: #c084fc;
+            transform: translateY(-2px);
+        }
+
+        .flashcard.completed {
+            border-color: #4ade80;
+            background: #f0fdf4;
+        }
+
+        .card-content {
+            padding: 32px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .card-type {
+            font-size: 0.875rem;
+            color: #a855f7;
+            font-weight: 600;
+        }
+
+        .completed-icon {
+            color: #22c55e;
+            font-size: 1.5rem;
+            display: none;
+        }
+
+        .completed .completed-icon {
+            display: block;
+        }
+
+        .term-display {
+            text-align: center;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .term-title {
+            font-size: 3rem;
+            font-weight: bold;
+            color: #6b21a8;
+            margin-bottom: 32px;
+        }
+
+        .flip-instruction {
+            color: #a855f7;
+            font-style: italic;
+        }
+
+        .definition-display {
+            display: none;
+        }
+
+        .definition-display.active {
+            display: block;
+        }
+
+        .definition-text {
+            font-size: 1.125rem;
+            color: #374151;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        .definition-text strong {
+            font-weight: 600;
+        }
+
+        .think-section {
+            border-top: 2px solid #e5b4f3;
+            padding-top: 16px;
+            margin-bottom: 16px;
+        }
+
+        .think-title {
+            font-weight: 600;
+            color: #6b21a8;
+            margin-bottom: 8px;
+        }
+
+        .think-text {
+            color: #374151;
+            font-style: italic;
+        }
+
+        .example-section {
+            background: #faf5ff;
+            border: 2px solid #e5b4f3;
+            padding: 16px;
+            border-radius: 8px;
+        }
+
+        .example-title {
+            font-weight: 600;
+            color: #6b21a8;
+            margin-bottom: 8px;
+        }
+
+        .example-text {
+            color: #374151;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-nav {
+            background: #f3e8ff;
+            color: #6b21a8;
+        }
+
+        .btn-nav:hover {
+            background: #e9d5ff;
+        }
+
+        .btn-complete {
+            background: #22c55e;
+            color: white;
+            display: none;
+        }
+
+        .btn-complete:hover {
+            background: #16a34a;
+        }
+
+        .btn-complete.visible {
+            display: flex;
+        }
+
+        .progress-bar-container {
+            margin-top: 24px;
+        }
+
+        .progress-bar {
+            background: #e5b4f3;
+            border-radius: 8px;
+            height: 12px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            background: #6b21a8;
+            height: 100%;
+            transition: width 0.3s;
+            width: 0%;
+        }
+
+        .completion-message {
+            margin-top: 24px;
+            padding: 16px;
+            background: #dcfce7;
+            border: 2px solid #86efac;
+            border-radius: 8px;
+            text-align: center;
+            display: none;
+        }
+
+        .completion-message.visible {
+            display: block;
+        }
+
+        .completion-text {
+            color: #15803d;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .term-title {
+                font-size: 2rem;
+            }
+            
+            .card-content {
+                padding: 24px;
+            }
+            
+            .controls {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Key Course Concepts</h1>
+            <p>Click cards to flip</p>
+        </div>
+
+        <div class="progress-section">
+            <div>Card <span id="current-num">1</span> of <span id="total-num">9</span></div>
+            <div>Completed: <span id="completed-num">0</span>/<span id="total-num-2">9</span></div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-purple" onclick="shuffleCards()">
+                🔀 Shuffle
+            </button>
+            <button class="btn btn-purple-light" onclick="resetCards()">
+                🔄 Reset
+            </button>
+        </div>
+
+        <div class="card-container">
+            <div id="flashcard" class="flashcard" onclick="flipCard()">
+                <div class="card-content">
+                    <div class="card-header">
+                        <span class="card-type" id="card-type">Term</span>
+                        <span class="completed-icon">✓</span>
+                    </div>
+                    
+                    <div id="term-view" class="term-display">
+                        <div class="term-title" id="term-text">Truth</div>
+                        <div class="flip-instruction">Click to reveal definition</div>
+                    </div>
+
+                    <div id="definition-view" class="definition-display">
+                        <div class="definition-text" id="definition-text"></div>
+                        
+                        <div class="think-section">
+                            <div class="think-title">Think About This:</div>
+                            <div class="think-text" id="context-text"></div>
+                        </div>
+                        
+                        <div class="example-section">
+                            <div class="example-title">Example:</div>
+                            <div class="example-text" id="example-text"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <button class="btn btn-nav" onclick="prevCard()">
+                ← Previous
+            </button>
+
+            <button id="complete-btn" class="btn btn-complete" onclick="markComplete()">
+                ✓ Mark as Complete
+            </button>
+
+            <button class="btn btn-nav" onclick="nextCard()">
+                Next →
+            </button>
+        </div>
+
+        <div class="progress-bar-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill"></div>
+            </div>
+        </div>
+
+        <div id="completion-message" class="completion-message">
+            <div class="completion-text">🎉 Congratulations! You've completed all concepts!</div>
+        </div>
+    </div>
+
+    <script>
+        const flashcards = [
+            {
+                term: "Truth",
+                definition: "In media studies, **truth** can mean facts that match what we see or experience. But it can also depend on how people understand the world. Different groups and cultures may tell different versions of what's \"true,\" based on their own language, values, and experiences.",
+                contextQuestion: "How might different cultural perspectives shape what is considered 'true' in media coverage of the same event?",
+                example: "Consider how the same protest might be framed as 'civil unrest' by one outlet and 'peaceful demonstration' by another."
+            },
+            {
+                term: "Objectivity",
+                definition: "Journalistic objectivity is the Western ideal of reporting news in a neutral, unbiased manner—detached, factual, and without prejudice. However, scholars argue it's a contested ideal rooted in historical and philosophical traditions. Also, who makes the decisions what is objective when making content?",
+                contextQuestion: "Why might the concept of 'objectivity' be problematic when reporting on Indigenous issues?",
+                example: "The choice of sources, language, and framing in news stories reveals embedded perspectives that challenge claims of pure objectivity."
+            },
+            {
+                term: "Power",
+                definition: "Power in media studies refers to the ability of individuals or institutions to influence what is produced, distributed, and consumed—shaping beliefs, values, and social norms.",
+                contextQuestion: "How do platform algorithms demonstrate media power in digital spaces?",
+                example: "When social media platforms decide which posts get wider reach, they exercise power over whose voices are heard."
+            },
+            {
+                term: "Agency / Sovereignty",
+                definition: "Agency refers to the capacity of individuals or groups to act intentionally, communicate their own truths, and author or control narratives within broader media landscapes. Similarly, Sovereignty is the authority of Aboriginal and Torres Strait Islander people over their own voices, stories, cultural knowledge, and media presence—asserting self-determination and cultural autonomy.",
+                contextQuestion: "What's the difference between being represented in media versus having media sovereignty?",
+                example: "Independent Indigenous-owned media platforms can demonstrate more agency and sovereignty over their content and operations than somewhere like NITV, which is bound by SBS' charter as a hybrid government funded-commercial model. Individual journalists working in non-Indigenous organisations will also have much more limited agency."
+            },
+            {
+                term: "Representation",
+                definition: "Representation has a dual meaning for this course. It means how Aboriginal and Torres Strait Islander people are depicted in the media, and also how we operate within the media industry.",
+                contextQuestion: "How does behind-the-scenes representation (Indigenous journalists, producers) affect on-screen representation?",
+                example: "Having Indigenous people in newsroom decision-making roles influences which stories get told and how they're framed."
+            },
+            {
+                term: "Cultural Protocol",
+                definition: "These are community-specific rules governing how stories are shared, by whom, and with what respect. They ensure that media practices honour relational and cultural responsibilities.",
+                contextQuestion: "Why might mainstream journalism practices conflict with Indigenous cultural protocols?",
+                example: "Deadlines and competitive scoops may clash with the time needed for proper community consultation and consent."
+            },
+            {
+                term: "Story",
+                definition: "Stories in media are constructed narratives that select, organise, and frame events into meaning—turning \"events\" into communicative experiences.",
+                contextQuestion: "How does the construction of a story differ from simply reporting facts?",
+                example: "The same set of facts about a land rights case can be constructed into stories about 'progress,' 'conflict,' or 'justice' depending on narrative choices."
+            },
+            {
+                term: "Algorithm",
+                definition: "Algorithms are coded instructions used by digital platforms to filter, rank, and recommend content. They powerfully shape what users see, engage with, and share.",
+                contextQuestion: "How might algorithmic bias affect the visibility of Indigenous content on social media?",
+                example: "If algorithms favour content with high engagement from mainstream audiences, Indigenous stories for Indigenous communities might be deprioritised."
+            },
+            {
+                term: "Futurism",
+                definition: "Futurism refers to practices of imagining, designing, and creating possible futures. Especially in relation to Indigenous-led digital innovation, AI development, and cultural sovereignty.",
+                contextQuestion: "How can Indigenous futurism challenge dominant narratives about technology and progress?",
+                example: "Indigenous creators using AI tools while maintaining cultural protocols demonstrate alternative approaches to technological development."
+            }
+        ];
+
+        let currentCard = 0;
+        let isFlipped = false;
+        let completedCards = new Set();
+        let cardOrder = Array.from({ length: flashcards.length }, (_, i) => i);
+
+        function formatDefinition(text) {
+            return text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+        }
+
+        function updateDisplay() {
+            const actualIndex = cardOrder[currentCard] || 0;
+            const card = flashcards[actualIndex];
+            const isCompleted = completedCards.has(actualIndex);
+
+            // Update content
+            document.getElementById('term-text').textContent = card.term;
+            document.getElementById('definition-text').innerHTML = formatDefinition(card.definition);
+            document.getElementById('context-text').textContent = card.contextQuestion;
+            document.getElementById('example-text').textContent = card.example;
+
+            // Update counters
+            document.getElementById('current-num').textContent = currentCard + 1;
+            document.getElementById('completed-num').textContent = completedCards.size;
+
+            // Update card type indicator
+            document.getElementById('card-type').textContent = isFlipped ? 'Definition' : 'Term';
+
+            // Update card styling for completed state
+            const flashcard = document.getElementById('flashcard');
+            if (isCompleted) {
+                flashcard.classList.add('completed');
+            } else {
+                flashcard.classList.remove('completed');
+            }
+
+            // Show/hide complete button
+            const completeBtn = document.getElementById('complete-btn');
+            if (isFlipped && !isCompleted) {
+                completeBtn.classList.add('visible');
+            } else {
+                completeBtn.classList.remove('visible');
+            }
+
+            // Update progress bar
+            const progress = (completedCards.size / flashcards.length) * 100;
+            document.getElementById('progress-fill').style.width = progress + '%';
+
+            // Show completion message
+            const completionMsg = document.getElementById('completion-message');
+            if (completedCards.size === flashcards.length) {
+                completionMsg.classList.add('visible');
+            } else {
+                completionMsg.classList.remove('visible');
+            }
+        }
+
+        function flipCard() {
+            isFlipped = !isFlipped;
+            
+            const termView = document.getElementById('term-view');
+            const definitionView = document.getElementById('definition-view');
+            
+            if (isFlipped) {
+                termView.style.display = 'none';
+                definitionView.classList.add('active');
+            } else {
+                termView.style.display = 'flex';
+                definitionView.classList.remove('active');
+            }
+            
+            updateDisplay();
+        }
+
+        function nextCard() {
+            currentCard = (currentCard + 1) % flashcards.length;
+            resetCardView();
+        }
+
+        function prevCard() {
+            currentCard = (currentCard - 1 + flashcards.length) % flashcards.length;
+            resetCardView();
+        }
+
+        function resetCardView() {
+            isFlipped = false;
+            document.getElementById('term-view').style.display = 'flex';
+            document.getElementById('definition-view').classList.remove('active');
+            updateDisplay();
+        }
+
+        function shuffleCards() {
+            cardOrder = [...cardOrder].sort(() => Math.random() - 0.5);
+            currentCard = 0;
+            resetCardView();
+        }
+
+        function resetCards() {
+            cardOrder = Array.from({ length: flashcards.length }, (_, i) => i);
+            currentCard = 0;
+            completedCards = new Set();
+            resetCardView();
+        }
+
+        function markComplete() {
+            const actualIndex = cardOrder[currentCard];
+            completedCards.add(actualIndex);
+            updateDisplay();
+        }
+
+        // Initialize
+        updateDisplay();
+    </script>
+</body>
+</html>
