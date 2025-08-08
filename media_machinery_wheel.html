@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Media Machinery Wheel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 50%, #1a1a1a 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #ffffff;
+            overflow-x: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            max-width: 1200px;
+            position: relative;
+            width: 100%;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, #ff6b35, #f7931e, #ff6b35);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+            text-shadow: 0 0 30px rgba(255, 107, 53, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: #cccccc;
+            font-style: italic;
+        }
+
+        .wheel-container {
+            position: relative;
+            width: 600px;
+            height: 600px;
+            margin: 0 auto;
+            transform-style: preserve-3d;
+        }
+
+        .wheel {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: radial-gradient(circle at center, #333333, #1a1a1a);
+            box-shadow: 
+                0 0 50px rgba(255, 107, 53, 0.2),
+                inset 0 0 50px rgba(0, 0, 0, 0.5);
+            transition: transform 0.3s ease;
+        }
+
+        .center-hub {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, #ff6b35, #e55527);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.2rem;
+            text-align: center;
+            z-index: 10;
+            box-shadow: 
+                0 0 30px rgba(255, 107, 53, 0.5),
+                inset 0 0 20px rgba(0, 0, 0, 0.3);
+            border: 3px solid #ffffff;
+        }
+
+        .strategy-segment {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 280px;
+            height: 60px;
+            transform-origin: 0 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .segment-content {
+            position: absolute;
+            right: 0;
+            top: -30px;
+            width: 140px;
+            height: 60px;
+            background: linear-gradient(135deg, #4a5568, #2d3748);
+            border: 2px solid #ff6b35;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 8px;
+            box-shadow: 
+                0 4px 15px rgba(0, 0, 0, 0.3),
+                0 0 10px rgba(255, 107, 53, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .strategy-segment:hover .segment-content {
+            background: linear-gradient(135deg, #ff6b35, #e55527);
+            transform: scale(1.1);
+            box-shadow: 
+                0 6px 25px rgba(0, 0, 0, 0.4),
+                0 0 20px rgba(255, 107, 53, 0.4);
+        }
+
+        .strategy-segment.active .segment-content {
+            background: linear-gradient(135deg, #f7931e, #ff6b35);
+            transform: scale(1.15);
+        }
+
+        .detail-panel {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #2d3748, #1a202c);
+            border-radius: 50%;
+            padding: 40px;
+            text-align: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s ease;
+            z-index: 15;
+            border: 3px solid #ff6b35;
+            box-shadow: 
+                0 0 40px rgba(255, 107, 53, 0.4),
+                inset 0 0 30px rgba(0, 0, 0, 0.3);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .detail-panel.active {
+            opacity: 1;
+            visibility: visible;
+            transform: scale(1);
+        }
+
+        .detail-panel h3 {
+            color: #ff6b35;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            font-weight: bold;
+        }
+
+        .detail-panel .definition {
+            font-size: 1.1rem;
+            color: #e2e8f0;
+            line-height: 1.5;
+            margin-bottom: 20px;
+            max-width: 450px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .detail-panel .reality-check {
+            font-size: 1rem;
+            color: #f7931e;
+            font-style: italic;
+            margin-bottom: 20px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .detail-panel .example {
+            font-size: 0.95rem;
+            color: #cbd5e0;
+            line-height: 1.4;
+            max-width: 450px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .back-btn {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(135deg, #ff6b35, #e55527);
+            border: none;
+            color: #ffffff;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 107, 53, 0.3);
+        }
+
+        .back-btn:hover {
+            background: linear-gradient(135deg, #e55527, #d4451a);
+            transform: translateX(-50%) translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.4);
+        }
+
+        .instructions {
+            text-align: center;
+            margin-top: 30px;
+            color: #a0aec0;
+            font-size: 1.1rem;
+        }
+
+        /* Gear decorations */
+        .gear {
+            position: absolute;
+            border: 2px solid rgba(255, 107, 53, 0.3);
+            border-radius: 50%;
+            background: radial-gradient(circle, transparent 40%, rgba(255, 107, 53, 0.1) 50%);
+        }
+
+        .gear-1 {
+            width: 80px;
+            height: 80px;
+            top: 10%;
+            left: 10%;
+            animation: rotate-clockwise 20s linear infinite;
+        }
+
+        .gear-2 {
+            width: 60px;
+            height: 60px;
+            bottom: 10%;
+            right: 10%;
+            animation: rotate-counter 15s linear infinite;
+        }
+
+        @keyframes rotate-clockwise {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes rotate-counter {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(-360deg); }
+        }
+
+        @media (max-width: 768px) {
+            .wheel-container {
+                width: 400px;
+                height: 400px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .strategy-segment {
+                width: 180px;
+            }
+            
+            .segment-content {
+                width: 100px;
+                height: 50px;
+                font-size: 0.75rem;
+            }
+            
+            .center-hub {
+                width: 120px;
+                height: 120px;
+                font-size: 1rem;
+            }
+            
+            .detail-panel.active {
+                width: 250px;
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>ABOR1420: Media Machinery Wheel</h1>
+            <p>Click any segment to explore how media operates as a weapon</p>
+        </div>
+
+        <div class="gear gear-1"></div>
+        <div class="gear gear-2"></div>
+
+        <div class="wheel-container">
+            <div class="wheel">
+                <div class="center-hub">
+                    <span>Click a Strategy</span>
+                </div>
+
+                <div class="detail-panel" id="detail-panel">
+                    <h3 id="detail-title"></h3>
+                    <div class="definition" id="detail-definition"></div>
+                    <div class="reality-check" id="detail-reality"></div>
+                    <div class="example" id="detail-example"></div>
+                    <button class="back-btn" onclick="closeDetail()">← Back to Wheel</button>
+                </div>
+
+                <!-- Strategy segments will be populated by JavaScript -->
+            </div>
+        </div>
+
+        <div class="instructions">
+            <p>Each segment represents a different strategy used to manipulate media narratives.<br>
+            Hover to preview, click to explore in detail.</p>
+        </div>
+    </div>
+
+    <script>
+        const strategies = [
+            {
+                name: "Agenda-Setting",
+                definition: "Controlling what stories get coverage (and what gets buried)",
+                reality: "Why this story, why now—who benefits from the distraction?",
+                example: "Extensive 'welfare fraud' coverage while government underspending goes unreported"
+            },
+            {
+                name: "Framing",
+                definition: "Shaping how audiences understand stories through angle and language",
+                reality: "How would this read with different words or photos?",
+                example: "'Protesters demand justice' vs 'Angry mob disrupts traffic'"
+            },
+            {
+                name: "Bias",
+                definition: "Embedded assumptions about whose voices, experiences, and perspectives matter",
+                reality: "Whose worldview is treated as 'normal' versus 'political'?",
+                example: "Police statements quoted directly while community members are 'claiming' or 'alleging'"
+            },
+            {
+                name: "Sensationalism",
+                definition: "Prioritising shock value over accuracy to drive engagement",
+                reality: "Remove the drama—what actual information remains?",
+                example: "'CHAOS ERUPTS' for peaceful protest with minor disruption"
+            },
+            {
+                name: "Moral Panic",
+                definition: "Manufacturing public fear about a group to justify harsh responses",
+                reality: "Do the statistics match the hysteria?",
+                example: "'Aboriginal crime wave' based on single incidents, ignoring broader crime data"
+            },
+            {
+                name: "Strategic Silence",
+                definition: "Deliberately omitting crucial context, voices, or historical background",
+                reality: "What essential context would change how I understand this?",
+                example: "Reporting 'vandalism' of statues without mentioning what those figures represent"
+            },
+            {
+                name: "False Balance",
+                definition: "Creating artificial equality between facts and misinformation",
+                reality: "Is this 'balance' actually distorting the truth?",
+                example: "Presenting climate science and fossil fuel PR as equally valid perspectives"
+            },
+            {
+                name: "The White Witness",
+                definition: "Centring non-Indigenous voices as the credible observers and interpreters of Indigenous affairs",
+                reality: "Who's treated as the reliable witness here—and whose testimony is deemed unreliable?",
+                example: "Historians explaining Indigenous culture while Traditional Knowledge Holders are consulted as 'sources'"
+            },
+            {
+                name: "Deficit Storytelling",
+                definition: "Exclusively portraying Indigenous communities through dysfunction and failure",
+                reality: "When did I last see this community celebrated for success?",
+                example: "Years of 'troubled community' stories with no coverage of achievements"
+            },
+            {
+                name: "Paternalistic Framing",
+                definition: "Positioning Indigenous people as requiring external guidance and intervention",
+                reality: "Who's presented as capable of solutions—and who isn't?",
+                example: "'Helping them learn' versus 'Supporting self-determined initiatives'"
+            },
+            {
+                name: "Media-Appointed Leaders",
+                definition: "Media repeatedly elevating individuals who support dominant narratives as 'Indigenous voices'",
+                reality: "Who legitimised this person's authority to speak for others?",
+                example: "Consistently quoting individuals who oppose land rights while ignoring Traditional Owner representatives"
+            }
+        ];
+
+        function createWheel() {
+            const wheel = document.querySelector('.wheel');
+            const totalStrategies = strategies.length;
+            const angleStep = 360 / totalStrategies;
+
+            strategies.forEach((strategy, index) => {
+                const segment = document.createElement('div');
+                segment.className = 'strategy-segment';
+                const angle = angleStep * index;
+                segment.style.transform = `rotate(${angle}deg)`;
+                segment.onclick = () => showDetail(strategy, index);
+
+                const content = document.createElement('div');
+                content.className = 'segment-content';
+                content.textContent = strategy.name;
+                
+                // Fix upside down text for bottom half of wheel
+                if (angle > 90 && angle < 270) {
+                    content.style.transform = 'rotate(180deg)';
+                }
+
+                segment.appendChild(content);
+                wheel.appendChild(segment);
+            });
+        }
+
+        function showDetail(strategy, index) {
+            const panel = document.getElementById('detail-panel');
+            const centerHub = document.querySelector('.center-hub');
+            
+            // Remove active class from all segments
+            document.querySelectorAll('.strategy-segment').forEach(seg => {
+                seg.classList.remove('active');
+            });
+            
+            // Add active class to clicked segment
+            document.querySelectorAll('.strategy-segment')[index].classList.add('active');
+
+            // Update content
+            document.getElementById('detail-title').textContent = strategy.name;
+            document.getElementById('detail-definition').innerHTML = `<strong>Definition:</strong> ${strategy.definition}`;
+            document.getElementById('detail-reality').innerHTML = `<strong>Reality Check:</strong> ${strategy.reality}`;
+            document.getElementById('detail-example').innerHTML = `<strong>Example:</strong> ${strategy.example}`;
+
+            // Show panel
+            panel.classList.add('active');
+            centerHub.style.opacity = '0';
+        }
+
+        function closeDetail() {
+            const panel = document.getElementById('detail-panel');
+            const centerHub = document.querySelector('.center-hub');
+            
+            panel.classList.remove('active');
+            centerHub.style.opacity = '1';
+            
+            // Remove active class from all segments
+            document.querySelectorAll('.strategy-segment').forEach(seg => {
+                seg.classList.remove('active');
+            });
+        }
+
+        // Initialize the wheel
+        createWheel();
+    </script>
+</body>
+</html>
