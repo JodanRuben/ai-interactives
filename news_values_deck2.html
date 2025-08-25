@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>News Values Decision Deck</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #2d1b69 0%, #5b2c87 100%);
+            height: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 20px 10px 20px;
+            color: #fff;
+            margin: 0;
+        }
+
+        .deck-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .deck-header h1 {
+            font-size: 2.5rem;
+            color: #e5b4f3;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .deck-header p {
+            color: #b0b0b0;
+            font-size: 1.1rem;
+            font-style: italic;
+        }
+
+        .card-container {
+            perspective: 1000px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            width: 650px;
+            height: 500px;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+            cursor: pointer;
+            margin: 0 auto;
+        }
+
+        .card.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            border: 2px solid #e5b4f3;
+        }
+
+        .card-front {
+            background: linear-gradient(135deg, #6b21a8 0%, #a855f7 100%);
+            color: white;
+        }
+
+        .card-back {
+            background: linear-gradient(135deg, #553c9a 0%, #6b21a8 100%);
+            color: white;
+            transform: rotateY(180deg);
+            text-align: center;
+        }
+
+        .card-icon {
+            font-size: 5rem;
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+
+        .card-title {
+            font-size: 2.8rem;
+            font-weight: bold;
+            text-align: center;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .card-definition {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            color: #ecf0f1;
+        }
+
+        .card-question-label {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #e5b4f3;
+            margin-bottom: 10px;
+        }
+
+        .card-question {
+            font-size: 1.1rem;
+            font-style: italic;
+            color: #bdc3c7;
+            line-height: 1.4;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 650px;
+            margin-bottom: 20px;
+        }
+
+        .nav-btn {
+            background: #e5b4f3;
+            color: #2d1b69;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(229,180,243,0.3);
+        }
+
+        .nav-btn:hover {
+            background: #c084fc;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(229,180,243,0.4);
+        }
+
+        .nav-btn:disabled {
+            background: #666;
+            color: #999;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .card-counter {
+            background: rgba(255,255,255,0.1);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 1rem;
+        }
+
+        .progress-bar {
+            width: 650px;
+            height: 8px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #e5b4f3, #c084fc);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .flip-hint {
+            text-align: center;
+            color: #bdc3c7;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            margin-bottom: 0;
+            opacity: 0.7;
+        }
+
+        @media (max-width: 768px) {
+            .card, .navigation, .progress-bar {
+                width: 400px;
+            }
+            
+            .card {
+                height: 380px;
+            }
+            
+            .card-face {
+                padding: 20px;
+            }
+            
+            .card-title {
+                font-size: 2.2rem;
+            }
+            
+            .card-icon {
+                font-size: 4rem;
+            }
+            
+            .deck-header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="deck-header">
+        <h1>News Values Decision Deck</h1>
+        <p>The principles that guide what becomes "news"</p>
+    </div>
+
+    <div class="progress-bar">
+        <div class="progress-fill" id="progress"></div>
+    </div>
+
+    <div class="navigation">
+        <button class="nav-btn" id="prevBtn" onclick="previousCard()">← Previous</button>
+        <div class="card-counter">
+            <span id="current">1</span> of <span id="total">6</span>
+        </div>
+        <button class="nav-btn" id="nextBtn" onclick="nextCard()">Next →</button>
+    </div>
+
+    <div class="card-container">
+        <div class="card" id="newsCard" onclick="flipCard()">
+            <div class="card-face card-front">
+                <div class="card-icon" id="cardIcon">📰</div>
+                <div class="card-title" id="cardTitle">Objectivity</div>
+            </div>
+            <div class="card-face card-back">
+                <div class="card-definition" id="cardDefinition">
+                    The journalistic ideal of reporting facts without personal bias, emotion, or opinion influencing the story. Journalists are expected to act as neutral observers, separating their own views from their reporting.
+                </div>
+                <div class="card-question-label">Think About This:</div>
+                <div class="card-question" id="cardQuestion">
+                    If a journalist has never experienced racism, can they be 'objective' when reporting on it?
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="flip-hint">
+        Click the card to flip it
+    </div>
+
+    <script>
+        const newsValues = [
+            {
+                title: "Objectivity",
+                icon: "📰",
+                definition: "The journalistic ideal of reporting facts without personal bias, emotion, or opinion influencing the story. Journalists are expected to act as neutral observers, separating their own views from their reporting.",
+                question: "If a journalist has never experienced racism, can they be 'objective' when reporting on it?"
+            },
+            {
+                title: "Balance",
+                icon: "⚖️",
+                definition: "The practice of presenting multiple perspectives on controversial issues, typically giving equal weight to different sides of a debate to demonstrate fairness.",
+                question: "Should journalists give equal time to Rio Tinto and Traditional Owners when reporting on the destruction of the Juukan Gorge?"
+            },
+            {
+                title: "Timeliness",
+                icon: "⏰",
+                definition: "The emphasis on reporting events as soon as they happen. Breaking news and recent developments take priority over older stories, regardless of their long-term importance.",
+                question: "Why do we see constant updates on the latest 'crime wave' in Alice Springs, but far fewer in-depth stories on the long-term policies, like the NT Intervention, that shape those outcomes?"
+            },
+            {
+                title: "Conflict",
+                icon: "⚔️",
+                definition: "The focus on disagreement, controversy, tension, or struggle between people, groups, or ideas. Stories with opposing sides or dramatic confrontations are considered more newsworthy.",
+                question: "What stories never make the news because they're not controversial enough?"
+            },
+            {
+                title: "Prominence",
+                icon: "👑",
+                definition: "The principle that actions and statements by famous, powerful, or influential people are inherently more newsworthy than similar actions by ordinary citizens.",
+                question: "Do we hear more from politicians about education than from actual teachers?"
+            },
+            {
+                title: "Novelty",
+                icon: "🎭",
+                definition: "The emphasis on stories that are unusual, bizarre, unexpected, or represent a departure from the norm. 'Dog bites man' isn't news, but 'man bites dog' is.",
+                question: "How does focusing on 'weird news' shape what we think is normal in society?"
+            }
+        ];
+
+        let currentCard = 0;
+        let isFlipped = false;
+
+        function updateCard() {
+            const card = newsValues[currentCard];
+            document.getElementById('cardIcon').textContent = card.icon;
+            document.getElementById('cardTitle').textContent = card.title;
+            document.getElementById('cardDefinition').textContent = card.definition;
+            document.getElementById('cardQuestion').textContent = card.question;
+            document.getElementById('current').textContent = currentCard + 1;
+            
+            // Update progress bar
+            const progress = ((currentCard + 1) / newsValues.length) * 100;
+            document.getElementById('progress').style.width = progress + '%';
+            
+            // Update navigation buttons
+            document.getElementById('prevBtn').disabled = currentCard === 0;
+            document.getElementById('nextBtn').disabled = currentCard === newsValues.length - 1;
+            
+            // Reset flip state
+            document.getElementById('newsCard').classList.remove('flipped');
+            isFlipped = false;
+        }
+
+        function flipCard() {
+            const card = document.getElementById('newsCard');
+            card.classList.toggle('flipped');
+            isFlipped = !isFlipped;
+        }
+
+        function nextCard() {
+            if (currentCard < newsValues.length - 1) {
+                currentCard++;
+                updateCard();
+            }
+        }
+
+        function previousCard() {
+            if (currentCard > 0) {
+                currentCard--;
+                updateCard();
+            }
+        }
+
+        // Initialize
+        updateCard();
+        document.getElementById('total').textContent = newsValues.length;
+    </script>
+</body>
+</html>
