@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>A Walk in Our Shoes</title>
+  <style>
+    :root{
+      --bg-grad-a:#667eea;--bg-grad-b:#764ba2;
+      --ink:#2c3e50;--paper:#ffffff;--chrome:#34495e;--frame:#2c3e50;
+      --blue:#3498db;--green:#27ae60;--orange:#ff9800;--teal:#1abc9c;--red:#e74c3c;--amber:#ff6b6b;
+      --muted:#657786;--soft:#f8f9fa;--soft2:#e8f4f8;--soft3:#fff8e1;--soft4:#fff3cd;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,system-ui,Arial;background:linear-gradient(135deg,var(--bg-grad-a) 0%,var(--bg-grad-b) 100%);color:var(--ink);} 
+    .wrap{max-width:1000px;margin:0 auto;padding:20px}
+    .computer-frame{background:var(--frame);border-radius:15px;padding:10px;box-shadow:0 15px 50px rgba(0,0,0,.3)}
+    .screen{background:var(--paper);border-radius:10px;min-height:700px;overflow:hidden}
+    .header-bar{background:var(--chrome);color:#fff;padding:15px 20px;font-weight:700;text-align:center;font-size:18px}
+    .story-content{padding:30px;line-height:1.7;font-size:16px}
+    .story-page{display:none}
+    .story-page.active{display:block;animation:fadeIn .35s ease-in}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+    /* Reusable widgets */
+    .social-post{background:var(--soft);border-left:4px solid #1da1f2;padding:16px;margin:15px 0;border-radius:6px;font-size:15px}
+    .post-author{font-weight:600;color:#1da1f2;margin-bottom:6px}
+    .post-time{font-size:12px;color:var(--muted);margin-top:8px}
+    .editor-quote{background:linear-gradient(135deg,var(--soft3) 0%,#ffecb3 100%);border-left:4px solid var(--orange);border-radius:8px;padding:20px;margin:20px 0;font-style:italic;position:relative}
+    .editor-quote::before{content:'"';font-size:60px;color:var(--orange);position:absolute;top:-10px;left:10px;opacity:.25}
+    .email-urgent{background:var(--soft4);border:2px solid var(--amber);border-radius:8px;padding:20px;margin:20px 0;position:relative}
+    .urgent-tag{background:var(--amber);color:#fff;padding:4px 8px;border-radius:4px;font-size:12px;font-weight:700;position:absolute;top:-8px;left:15px}
+
+    /* Scenario-specific widgets */
+    .protocol-card{background:conic-gradient(from 180deg at 20% 20%,#f5f7ff,#eef6ff,#f5fff8,#fff7f5);border:1px solid #e3e8f3;padding:18px;border-radius:10px;position:relative}
+    .protocol-card .tag{position:absolute;top:-10px;right:12px;background:#4a6cf7;color:#fff;font-size:12px;font-weight:700;padding:4px 8px;border-radius:6px}
+    .sticky-note{background:#fff9c4;border:1px dashed #d9c55f;border-radius:8px;box-shadow:0 6px 14px rgba(0,0,0,.08);padding:16px 18px;transform:rotate(-1.2deg);margin:18px 0}
+    .sticky-note .pin{width:10px;height:10px;background:#d84315;border-radius:50%;display:inline-block;margin-right:8px;box-shadow:0 1px 2px rgba(0,0,0,.3)}
+    .police-brief{background:#f2f7ff;border-left:4px solid #2962ff;padding:16px;border-radius:8px}
+    .police-brief .hdr{font-weight:700;color:#2962ff;margin-bottom:6px}
+    .live-update{background:#fff0f1;border-left:4px solid var(--red);padding:16px;border-radius:8px;position:relative}
+    .live-update .badge{position:absolute;top:-10px;left:12px;background:var(--red);color:#fff;padding:3px 8px;border-radius:6px;font-size:12px;font-weight:700}
+    .community-card{background:#f7f5ff;border-left:4px solid #7e57c2;padding:16px;border-radius:8px}
+    .followup-card{background:#f0fff6;border-left:4px solid var(--green);padding:16px;border-radius:8px}
+    .comment-stream{background:var(--soft);border:1px solid #e6ecf0;border-radius:8px;padding:12px}
+    .comment-stream .cmt{padding:10px 12px;border-bottom:1px dashed #e1e8ed}
+    .comment-stream .cmt:last-child{border-bottom:none}
+    .comment-stream .who{color:#1da1f2;font-weight:700}
+
+    /* Choice/feedback controls */
+    .choices{margin-top:22px}
+    .choice-btn{background:linear-gradient(135deg,#3498db 0%,#2980b9 100%);color:#fff;border:none;padding:16px 20px;margin:10px 0;width:100%;text-align:left;border-radius:8px;cursor:pointer;font-size:16px;transition:all .25s ease;box-shadow:0 2px 10px rgba(52,152,219,.3)}
+    .choice-btn:hover{transform:translateY(-2px);box-shadow:0 4px 15px rgba(52,152,219,.4)}
+    .choice-btn:disabled{background:#bdc3c7;cursor:not-allowed;transform:none;box-shadow:none}
+    .continue-btn{background:var(--green);color:#fff;border:none;padding:12px 20px;border-radius:6px;cursor:pointer;transition:background .25s;font-size:16px}
+    .continue-btn:hover{filter:brightness(.95)}
+    .back-btn{background:#95a5a6;color:#fff;border:none;padding:12px 20px;border-radius:6px;cursor:pointer}
+
+    .feedback{background:var(--soft2);border:1px solid #81d4fa;border-radius:8px;padding:16px;margin-top:15px;display:none}
+    .feedback.show{display:block;animation:slideIn .25s ease-out}
+    @keyframes slideIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+    .feedback-title{font-weight:700;color:#0277bd;margin-bottom:8px}
+    .btn-group{margin-top:18px;display:flex;gap:12px;flex-wrap:wrap}
+
+    .debrief{background:#eef7f1;border-left:4px solid var(--green);padding:18px;border-radius:10px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="computer-frame">
+      <div class="screen">
+        <div class="header-bar">A Walk in Our Shoes: Aboriginal Journalism</div>
+
+        <!-- Page 1: Intro -->
+        <div class="story-page active" id="intro">
+          <div class="story-content">
+            <h2>Welcome to the Newsroom</h2>
+            <p>In this interactive experience, you step into the shoes of an Aboriginal journalist working inside a mainstream newsroom. At each turn, you'll balance newsroom pressures against community responsibility.</p>
+            <div style="background:#e8f5e8;padding:20px;border-radius:8px;margin:20px 0;border-left:4px solid var(--green)"><strong>Today's Challenge:</strong> A death in custody story breaks on social media, and all eyes turn to you.</div>
+            <button class="continue-btn" onclick="showPage('social')">Begin Your Day</button>
+          </div>
+        </div>
+
+        <!-- Page 2: Social Media Alert -->
+        <div class="story-page" id="social">
+          <div class="story-content">
+            <h2>Death in Custody</h2>
+            <p>Social media posts are appearing about a young Aboriginal man who has died in police custody in a regional town. Your editor calls you over — "This is your patch. Get on it."</p>
+            <div class="social-post">
+              <div class="post-author">@CommunityWatch_NSW</div>
+              <div>BREAKING: Reports of young Aboriginal man found dead in police custody in regional NSW. Family gathering. More details needed. #JusticeWatch</div>
+              <div class="post-time">2 minutes ago</div>
+            </div>
+            <div class="social-post">
+              <div class="post-author">@RegionalVoices</div>
+              <div>Hearing terrible news from our town. Another young one gone. When will this stop? 💔</div>
+              <div class="post-time">4 minutes ago</div>
+            </div>
+            <div class="social-post">
+              <div class="post-author">@NewsWire_AU</div>
+              <div>Developing: Death in custody reported in regional NSW. Police have not yet confirmed details.</div>
+              <div class="post-time">6 minutes ago</div>
+            </div>
+            <p><strong>You feel the weight immediately:</strong> community trauma, family grief, and hostile newsroom pressures.</p>
+            <button class="continue-btn" onclick="showPage('editor')">Walk Over to Editor</button>
+          </div>
+        </div>
+
+        <!-- Page 3: Editor Meeting (Pitch) -->
+        <div class="story-page" id="editor">
+          <div class="story-content">
+            <h2>Pitching the Story</h2>
+            <div class="editor-quote"><strong>Your Editor:</strong> "Look, I've seen the social media posts. This is your patch. But honestly... we've done a lot of these lately, and they don't rate with our audience. Do we really need another one?"</div>
+            <p><strong>What do you do?</strong></p>
+            <div class="choices">
+              <button class="choice-btn" data-choice="A" onclick="makeChoice('pitch','A')">Insist this is a public-interest story that needs coverage</button>
+              <button class="choice-btn" data-choice="B" onclick="makeChoice('pitch','B')">Agree to monitor but not push hard unless it escalates</button>
+              <button class="choice-btn" data-choice="C" onclick="makeChoice('pitch','C')">Suggest reframing as a political story (e.g. local MP reaction)</button>
+            </div>
+            <div class="feedback" id="feedback-pitch">
+              <div class="feedback-title">Potential effects:</div>
+              <div id="feedback-pitch-text"></div>
+              <div class="btn-group">
+                <button class="back-btn" onclick="resetChoice('pitch')">← Try Another Choice</button>
+                <button class="continue-btn" onclick="showPage('contact')">Continue</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Page 4: First Contact -->
+        <div class="story-page" id="contact">
+          <div class="story-content">
+            <h2>First Contact</h2>
+            <div class="email-urgent"><div class="urgent-tag">URGENT</div><div class="email-header"><strong>From:</strong> Chief of Staff</div><strong>Subject:</strong> Custody story - need quotes NOW<br><br>"Editor says you're covering the custody death. Get someone on the record fast. Police, family, I don't care who. We need this live within 2 hours for the website. Traffic's dropping and we need content."</div>
+            <p><strong>What do you do?</strong></p>
+            <div class="choices">
+              <button class="choice-btn" data-choice="A" onclick="makeChoice('contact','A')">Call the police media unit immediately to confirm</button>
+              <button class="choice-btn" data-choice="B" onclick="makeChoice('contact','B')">Send a respectful text to family/community contacts you already know</button>
+              <button class="choice-btn" data-choice="C" onclick="makeChoice('contact','C')">Approach the family directly at home or hospital</button>
+            </div>
+            <div class="feedback" id="feedback-contact">
+              <div class="feedback-title">Potential effects:</div>
+              <div id="feedback-contact-text"></div>
+              <div class="btn-group">
+                <button class="back-btn" onclick="resetChoice('contact')">← Try Another Choice</button>
+                <button class="continue-btn" onclick="showPage('headline')">Continue</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Page 5: Headline -->
+        <div class="story-page" id="headline">
+          <div class="story-content">
+            <h2>Headline</h2>
+            <p>You have quotes from family (who prefer not to use names yet), a brief police statement noting referral to ethical standards, and a local MP urging calm.</p>
+            <div class="editor-quote"><strong>The editor pushes:</strong> "We need a headline for online. What angle are you taking?"</div>
+            <div class="choices">
+              <button class="choice-btn" data-choice="A" onclick="makeChoice('headline','A')">"Man dies in police custody"</button>
+              <button class="choice-btn" data-choice="B" onclick="makeChoice('headline','B')">"Family demands justice after Aboriginal man dies in custody"</button>
+              <button class="choice-btn" data-choice="C" onclick="makeChoice('headline','C')">"Police under fire after custody death"</button>
+              <button class="choice-btn" data-choice="D" onclick="makeChoice('headline','D')">"Calls for calm after Aboriginal man dies in police cell"</button>
+            </div>
+            <div class="feedback" id="feedback-headline">
+              <div class="feedback-title">Potential effects:</div>
+              <div id="feedback-headline-text"></div>
+              <div class="btn-group">
+                <button class="back-btn" onclick="resetChoice('headline')">← Try Another Choice</button>
+                <button class="continue-btn" onclick="showPage('protocols')">Continue</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Page 6: Cultural Protocols (Scenario 4) -->
+        <div class="story-page" id="protocols">
+          <div class="story-content">
+            <h2>Cultural Protocols</h2>
+            <div class="protocol-card">
+              <div class="tag">Naming</div>
+              You secure approval to centre the family in the headline. Then the editor shows a random social post: <em>"Here he is. This is his name. Can we publish?"</em>
+              <br><br>
+              In mainstream newsrooms, naming is automatic. For many Aboriginal families, naming someone who has died can be deeply harmful.
+            </div>
+            <p><strong>What do you reply?</strong></p>
+            <div class="choices">
+              <button class="choice-btn" data-choice="A" onclick="makeChoice('protocols','A')">Yes, let's publish the name now and lead with full details</button>
+              <button class="choice-btn" data-choice="B" onclick="makeChoice('protocols','B')">Hold off and contact the appropriate family spokesperson first</button>
+              <button class="choice-btn" data-choice="C" onclick="makeChoice('protocols','C')">Leave the name out; it’s important to say he is an Aboriginal man</button>
+            </div>
+            <div class="feedback" id="feedback-protocols">
+              <div class="feedback-title">Potential effects:</div>
+              <div id="feedback-protocols-text"></div>
+              <div class="btn-group">
+                <button class="back-btn" onclick="resetChoice('protocols')">← Try Another Choice</button>
+                <button class="continue-btn" onclick="showPage('favour')">Continue</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Page 7: A Quick Favour (Scenario 5) -->
+        <div class="story-page" id="favour">
+          <div class="story-content">
+            <h2>A Quick Favour</h2>
+            <div class="sticky-note"><span class="pin"></span><strong>Colleague:</strong> "Hey, you know this stuff — can you just check my historical NAIDOC Week piece really quickly? Don’t want to get anything wrong."</div>
+            <p>You’re under pressure to deliver on the custody story, but refusing could sour relations. Once again, you’re being asked to carry cultural responsibility for the whole newsroom.</p>
+            <p><strong>How do you respond?</strong></p>
+            <div class="choices">
+              <button class="choice-btn" data-choice="A" onclick="makeChoice('favour','A')">Stop your work to help with their story</button>
+              <button class="choice-btn" data-choice="B" onclick="makeChoice('favour','B')">Say you’re too busy and refuse to help</button>
+              <button class="choice-btn" data-choice="C" onclick="makeChoice('favour','C')">Redirect to editor or existing cultural guidelines</button>
+            </div>
+            <div class="feedback" id="feedback-favour">
+              <div class="feedback-title">Potential effects:</div>
+              <div id="feedback-favour-text"></div>
+              <div class="btn-group">
+                <button class="back-btn" onclick="resetChoice('favour')">← Try Another Choice</button>
+                <button class="continue-btn" onclick="showPage('police')">Continue</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Page 8: Police Follow-Up (Scenario 6) -->
+        <div class="story-page" id="police">
+          <div class="story-content">
+            <h2>Police Follow-Up</h2>
+            <div class="police-brief">
+              <div class="hdr">Update</div>
+              Family in sorry business approve using <em>Mr X</em> (surname). Editor: "Push the police harder for more information — our readers want their side."
+            </div>
+            <p>Mainstream “balance” often elevates official voices. Communities expect dignity.</p>
+            <p><strong>What do you do?</strong></p>
+            <div class="choices">
+              <button class="choice-btn" data-choice="A" onclick="makeChoice('police','A')">Rely on the initial police statement and add more of it to make the story bigger</button>
+              <button class="choice-btn" data-choice="B" onclick="makeChoice('police','B')">Return to police with family/community concerns; push for accountability; note refusal if they decline</button>
+              <button class="choice-btn" data-choice="C" onclick="makeChoice('police','C')">Exclude police perspective entirely</button>
+            </div>
+            <div class="feedback" id="feedback-police">
+              <div class="feedback-title">Potential effects:</div>
+              <div id="feedback-police-text"></div>
+              <div class="btn-group">
+                <button class="back-btn" onclick="resetChoice('police')">← Try Another Choice</button>
+                <button class="continue-btn" onclick="showPage('updating')">Continue</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Page 9: Updating on the run (Scenario 7) -->
+        <div class="story-page" id="updating">
+          <div class="story-content">
+            <h2>Updating on the run</h2>
+            <div class="live-update"><span class="badge">LIVE UPDATE</span> Police provide a version of events that shifts blame onto the deceased. The editor says this must be included and tells you to update the story.</div>
+            <p><strong>What do you say?</strong></p>
+            <div class="choices">
+              <button class="choice-btn" data-choice="A" onclick="makeChoice('updating','A')">But this is new information — we haven’t asked the family what their response is</button>
+              <button class="choice-btn" data-choice="B" onclick="makeChoice('updating','B')">Okay — publish with this update and try the family again later</button>
+            </div>
+            <div class="feedback" id="feedback-updating">
+              <div class="feedback-title">Potential effects:</div>
+              <div id="feedback-updating-text"></div>
+              <div class="btn-group">
+                <button class="back-btn" onclick="resetChoice('updating')">← Try Another Choice</button>
+                <button class="continue-btn" onclick="showPage('community')">Continue</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Page 10: Community Feedback (Scenario 8) -->
+        <div class="story-page" id="community">
+          <div class="story-content">
+            <h2>Community Feedback</h2>
+            <div class="community-card">Family request CCTV footage from the building. It is added after the police quote. They contact you, angry that the story still carries police blame.</div>
+            <div class="editor-quote"><strong>Editor:</strong> "We’ve already published — we can’t keep rewriting the same story."</div>
+            <p><strong>How do you respond?</strong></p>
+            <div class="choices">
+              <button class="choice-btn" data-choice="A" onclick="makeChoice('community','A')">Push to rewrite the story to rebalance it with family voices and demands</button>
+              <button class="choice-btn" data-choice="B" onclick="makeChoice('community','B')">Leave the story as it is and make a note for a possible follow‑up later</button>
+              <button class="choice-btn" data-choice="C" onclick="makeChoice('community','C')">Escalate concerns to a senior editor or Indigenous affairs unit</button>
+              <button class="choice-btn" data-choice="D" onclick="makeChoice('community','D')">Explain the newsroom’s production process to the family</button>
+            </div>
+            <div class="feedback" id="feedback-community">
+              <div class="feedback-title">Potential effects:</div>
+              <div id="feedback-community-text"></div>
+              <div class="btn-group">
+                <button class="back-btn" onclick="resetChoice('community')">← Try Another Choice</button>
+                <button class="continue-btn" onclick="showPage('postpub')">Continue</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Page 11: Post Publication (Scenario 9) -->
+        <div class="story-page" id="postpub">
+          <div class="story-content">
+            <h2>Post Publication</h2>
+            <div class="followup-card"><strong>New assignment:</strong> “Great work — you’re now onto a city precinct story.”</div>
+            <p>But for families, grief doesn’t end with your deadline. Newsroom logic vs community responsibility. What can you do?</p>
+            <div class="choices">
+              <button class="choice-btn" data-choice="A" onclick="makeChoice('postpub','A')">Move on — you’ve done your bit</button>
+              <button class="choice-btn" data-choice="B" onclick="makeChoice('postpub','B')">Stay in touch, follow developments, and report respectfully</button>
+              <button class="choice-btn" data-choice="C" onclick="makeChoice('postpub','C')">Only do a follow‑up if the story blows up mainstream</button>
+            </div>
+            <div class="feedback" id="feedback-postpub">
+              <div class="feedback-title">Potential effects:</div>
+              <div id="feedback-postpub-text"></div>
+              <div class="btn-group">
+                <button class="back-btn" onclick="resetChoice('postpub')">← Try Another Choice</button>
+                <button class="continue-btn" onclick="showPage('backlash')">Continue</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Page 12: Audience Backlash -->
+        <div class="story-page" id="backlash">
+          <div class="story-content">
+            <h2>Audience Backlash</h2>
+            <div class="comment-stream">
+              <div class="cmt"><span class="who">@PlatformUser92</span> Why do they always have an Aboriginal journalist defending criminals?</div>
+              <div class="cmt"><span class="who">@FairGo_aus</span> These reporters are so biased — no wonder the cops never get a fair go.</div>
+            </div>
+            <p>It’s confronting and exhausting. You’re targeted not just as a journalist, but as an Aboriginal person.</p>
+            <p><strong>How do you respond?</strong></p>
+            <div class="choices">
+              <button class="choice-btn" data-choice="A" onclick="makeChoice('backlash','A')">Ignore the comments and keep working</button>
+              <button class="choice-btn" data-choice="B" onclick="makeChoice('backlash','B')">Raise the abuse with your editor/management</button>
+              <button class="choice-btn" data-choice="C" onclick="makeChoice('backlash','C')">Respond personally to defend your reporting</button>
+            </div>
+            <div class="feedback" id="feedback-backlash">
+              <div class="feedback-title">Potential effects:</div>
+              <div id="feedback-backlash-text"></div>
+              <div class="btn-group">
+                <button class="back-btn" onclick="resetChoice('backlash')">← Try Another Choice</button>
+                <button class="continue-btn" onclick="showPage('wrap')">Continue</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Page 13: Wrap / Debrief -->
+        <div class="story-page" id="wrap">
+          <div class="story-content">
+            <h2>Debrief</h2>
+            <div class="debrief">
+              <p><strong>You’ve reached the end of this roleplay.</strong> Your choices shaped not just how the story unfolded, but how trust, respect, and dignity were upheld or eroded.</p>
+              <p><strong>Reflect:</strong></p>
+              <ul>
+                <li>What newsroom pressures did you feel most strongly?</li>
+                <li>How did those pressures clash with community responsibilities?</li>
+                <li>What structural changes would prevent some of these dilemmas?</li>
+              </ul>
+            </div>
+            <div class="btn-group" style="margin-top:16px">
+              <button class="continue-btn" onclick="showPage('intro')">Back to Start</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Page switcher + page-level reset
+    function showPage(id){
+      document.querySelectorAll('.story-page').forEach(p=>p.classList.remove('active'));
+      var el=document.getElementById(id); if(el){ el.classList.add('active'); }
+      if(el){ el.querySelectorAll('.choice-btn').forEach(btn=>{btn.disabled=false;btn.style.opacity='1'}); }
+      if(el){ el.querySelectorAll('.feedback').forEach(f=>f.classList.remove('show')); }
+    }
+
+    // Feedback for all scenarios
+    var feedbackData={
+      pitch:{
+        A:"Demonstrates commitment to community concerns. May create tension with an editor focused on KPIs.",
+        B:"Maintains harmony but risks reactive coverage; communities may see it as too slow.",
+        C:"Improves chance of approval via politics angle; risks sidelining Aboriginal voices."
+      },
+      contact:{
+        A:"Quick confirmation under deadline, but establishes police narrative first.",
+        B:"Slower, culturally respectful; builds long‑term trust but may miss immediate deadlines.",
+        C:"Likely breaches sorry business protocols and causes harm; damages trust."
+      },
+      headline:{
+        A:"Neutral but erases identity and systemic context.",
+        B:"Centres Aboriginal people and agency; highlights systemic issue.",
+        C:"Conflict‑forward; risks sensationalising and overshadowing grief.",
+        D:"Frames community as needing management; downplays systemic issues."
+      },
+      protocols:{
+        A:"Never acceptable. Always confirm with family/community spokesperson first.",
+        B:"Shows respect and accountability.",
+        C:"Culturally appropriate option."
+      },
+      favour:{
+        A:"Keeps colleague happy; prevents errors in their piece, but adds invisible workload and delays your reporting.",
+        B:"Protects your time and focus; may harm relationships and be read as not a team player.",
+        C:"Shifts responsibility back to newsroom systems; you may still be seen as unhelpful and they might not follow through."
+      },
+      police:{
+        A:"Easy, but reproduces official narrative unchallenged.",
+        B:"Includes police comment without privileging it; documents accountability and refusal if it occurs.",
+        C:"Defensible but risky with editors; likely criticised for lacking ‘balance’."
+      },
+      updating:{
+        A:"Ensures the family has a right of reply before damaging claims are added. Protects fairness but slows the process.",
+        B:"Prioritises newsroom speed over balance. Risks harming trust with the community and presenting a one‑sided narrative that blames the deceased."
+      },
+      community:{
+        A:"Shows integrity and accountability. Risks frustrating editors, but begins to repair harm and demonstrates advocacy for fairness.",
+        B:"Easiest newsroom option. Minimises conflict in the short term but erodes community trust and reinforces the sense of being unheard.",
+        C:"Shares the cultural load and signals seriousness of harm. May be resisted if leadership is unsupportive, but creates accountability beyond you alone.",
+        D:"Risks sounding defensive or dismissive. Transparency can help, but without change it reads as justifying harm and won’t repair trust."
+      },
+      postpub:{
+        A:"Parachute reporting erodes trust.",
+        B:"Builds long‑term trust with community, but requires extra effort often undervalued by the newsroom.",
+        C:"Reactive rather than respectful; communities notice neglect."
+      },
+      backlash:{
+        A:"Quickest option but normalises racist abuse; the personal toll remains.",
+        B:"Places responsibility on the organisation; risk it’s minimised as ‘part of the job’, leaving you unsupported.",
+        C:"Likely escalates abuse and compromises professionalism; you shouldn’t have to defend your humanity online."
+      }
+    };
+
+    // Choice handler
+    function makeChoice(scenario,choice){
+      var feedbackDiv=document.getElementById('feedback-'+scenario);
+      var feedbackText=document.getElementById('feedback-'+scenario+'-text');
+      if(feedbackText && feedbackData[scenario] && feedbackData[scenario][choice]){
+        feedbackText.textContent=feedbackData[scenario][choice];
+        feedbackDiv.classList.add('show');
+        var current=document.querySelector('.story-page.active');
+        if(current){
+          current.querySelectorAll('.choice-btn').forEach(btn=>{
+            btn.disabled=true;
+            var bc=btn.dataset && btn.dataset.choice ? btn.dataset.choice : null;
+            if(bc && bc!==choice){ btn.style.opacity='0.5'; }
+          });
+        }
+      }
+    }
+
+    function resetChoice(scenario){
+      var feedbackDiv=document.getElementById('feedback-'+scenario);
+      if(feedbackDiv){ feedbackDiv.classList.remove('show'); }
+      var current=document.querySelector('.story-page.active');
+      if(current){ current.querySelectorAll('.choice-btn').forEach(btn=>{btn.disabled=false;btn.style.opacity='1'}); }
+    }
+  </script>
+</body>
+</html>
